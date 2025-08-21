@@ -11,34 +11,34 @@ const {
 
 const BASE_URL = process.env.BASE_URL;
 
-async function scrapeBeranda() {
-    const {
-        data: html
-    } = await axios.get(BASE_URL);
-    const $ = cheerio.load(html);
+// async function scrapeBeranda() {
+//     const {
+//         data: html
+//     } = await axios.get(BASE_URL);
+//     const $ = cheerio.load(html);
 
-    // Coba ambil beberapa berita terbaru (sesuaikan selector dengan web kamu)
-    const items = [];
-    $("article").slice(0, 6).each((_, el) => {
-        const title = $(el).find(".entry-title a, h2 a").first().text().trim();
-        const link = $(el).find(".entry-title a, h2 a").first().attr("href");
-        const date = $(el).find("time, .entry-date").first().text().trim();
-        const excerpt = $(el).find(".entry-content p, .post-excerpt, p").first().text().trim();
-        if (title && link) items.push({
-            title,
-            link,
-            date,
-            excerpt
-        });
-    });
+//     // Coba ambil beberapa berita terbaru (sesuaikan selector dengan web kamu)
+//     const items = [];
+//     $("article").slice(0, 6).each((_, el) => {
+//         const title = $(el).find(".entry-title a, h2 a").first().text().trim();
+//         const link = $(el).find(".entry-title a, h2 a").first().attr("href");
+//         const date = $(el).find("time, .entry-date").first().text().trim();
+//         const excerpt = $(el).find(".entry-content p, .post-excerpt, p").first().text().trim();
+//         if (title && link) items.push({
+//             title,
+//             link,
+//             date,
+//             excerpt
+//         });
+//     });
 
-    for (const it of items) {
-        await run(
-            `INSERT OR IGNORE INTO berita(title,link,date,excerpt) VALUES(?,?,?,?)`,
-            [it.title, it.link, it.date || "", it.excerpt || ""]
-        );
-    }
-}
+//     for (const it of items) {
+//         await run(
+//             `INSERT OR IGNORE INTO berita(title,link,date,excerpt) VALUES(?,?,?,?)`,
+//             [it.title, it.link, it.date || "", it.excerpt || ""]
+//         );
+//     }
+// }
 
 async function scrapeProfilSekolah() {
     // Contoh: kalau ada halaman "Profil" / "Tentang"
