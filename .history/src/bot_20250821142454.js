@@ -10,22 +10,22 @@ class ChatBot {
     // Predefined questions untuk fallback
     static get predefinedQuestions() {
         return [{
-                keywords: ["halo", "hai", "hello", "hi", "selamat", "selamat datang", "hallo", "assalamualaikum", "assalamu'alaikum", "salam", "salam sejahtera","halo bro", "halo sis"],
+                keywords: ["halo", "hai", "hello", "hi", "selamat", "selamat datang",],
                 answer: "Halo! 👋 Saya adalah chatbot SMK Syafi'i Akrom. Ada yang bisa saya bantu hari ini?",
                 quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah"]
             },
             {
-                keywords: ["terima kasih", "thanks", "makasih", "thank you", "thx", "syukron", "syukron jazakumullah"],
+                keywords: ["terima kasih", "thanks", "makasih"],
                 answer: "Sama-sama! 😊 Senang bisa membantu. Jika ada pertanyaan lain, saya siap membantu!",
                 quickReplies: ["Info jurusan", "PPDB", "Ekstrakurikuler"]
             },
             {
-                keywords: ["siapa kamu", "nama kamu", "kamu siapa","lu itu siapa"],
+                keywords: ["siapa kamu", "nama kamu", "kamu siapa"],
                 answer: "Saya adalah AI Assistant SMK Syafi'i Akrom Pekalongan. Saya siap membantu Anda dengan informasi seputar sekolah kami! 🎓",
                 quickReplies: ["Info sekolah", "Jurusan", "PPDB"]
             },
             {
-                keywords: ["help", "bantuan", "tolong", "menu", "butuh bantuan", "bisa bantu"],
+                keywords: ["help", "bantuan", "tolong", "menu"],
                 answer: "Saya bisa membantu Anda dengan:\n\n• 🎓 Informasi jurusan\n• 📝 PPDB dan pendaftaran\n• ⚽ Ekstrakurikuler\n• 🏫 Fasilitas sekolah\n• 📰 Berita terbaru\n• 📞 Kontak sekolah\n\nApa yang ingin Anda ketahui?",
                 quickReplies: ["Jurusan", "PPDB", "Ekstrakurikuler", "Kontak"]
             }
@@ -187,7 +187,7 @@ class ChatBot {
     // Format response untuk kontak
     formatKontakResponse(kontakInfo) {
         let response = "📞 **KONTAK SEKOLAH**\n\n";
-        response += `📍 **Alamat:** ${kontakInfo.alamat || ''}\n`;
+        response += `📍 **Alamat:** ${kontakInfo.alamat || 'Jl. Raya Pekalongan'}\n`;
         response += `📞 **Telepon:** ${kontakInfo.telp || '(0285) 1234567'}\n`;
         response += `📧 **Email:** ${kontakInfo.email || 'info@smksa.sch.id'}\n\n`;
         response += "🌐 **Website:** https://ponpes-smksa.sch.id/";

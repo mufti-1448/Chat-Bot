@@ -330,7 +330,10 @@ async function scrapeEkskul() {
 
 async function scrapeKontak() {
     const urlsToTry = [
-        `${BASE_URL}/profile-sekolah/keadaan-sekolah/`,
+        `${BASE_URL}/ekstrakurikuler/`,
+        `${BASE_URL}/ekskul/`,
+        `${BASE_URL}/kegiatan/`,
+        `${BASE_URL}/extracurricular/`
     ];
     console.log("📞 Scraping kontak...");
 

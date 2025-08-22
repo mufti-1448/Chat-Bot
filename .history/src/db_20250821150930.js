@@ -119,13 +119,13 @@ class Database {
             const statisCount = await this.get(`SELECT COUNT(*) as count FROM statis`);
             if (statisCount.count === 0) {
                 console.log("📝 Inserting default static data...");
-                    // mengirim atau membuat isi school.db
+
                 const defaultData = [
                     ['visi', 'Tersedianya generasi muda yang profesional, mandiri dan berakhlaqul karimah, serta mendapat ridha Allah SWT, melalui perpaduan Iman Taqwa dan IPTEK.'],
                     ['misi', '1. Menyiapkan peserta didik agar menjadi manusia produktif, mampu bekerja mandiri, mengisi lowongan pekerjaan yang ada di dunia usaha dan dunia industri sebagai tenaga kerja tingkat menengah sesuai dengan kompetensi dalam program keahlian masing-masing.\n2.Menyiapkan peserta didik agar mampu memilih karier, ulet dan gigih dalam berkompetisi, beradaptasi di lingkungan kerja, dan mengembangkan sikap professional dalam bidang keahliannya, beraqidah ahlussunnah wal jamaah, dan berakhlaqul karimah\n3. Membekali peserta didik dengan Ilmu Pengetahuan, teknologi, dan seni agar mampu mengembangkan diri di kemudian hari baik secara mandiri maupun melalui jenjang pendidikan yang lebih tinggi.\n4. Membina dan menyiapkan guru/ karyawan yang profesional dan berjiwa pendidik.'],
                     ['alamat', 'Jl. Pelita 1 No. 322 (Perum Buaran Indah) Kota Pekalongan Jawa Tengah'],
-                    ['telp', '(0285) 410447'],
-                    ['email', 'smk_sa@ymail.com'],
+                    ['telp', '((0285) 410447'],
+                    ['email', 'info@smksa.sch.id'],
                     ['website', 'https://ponpes-smksa.sch.id/']
                 ];
 

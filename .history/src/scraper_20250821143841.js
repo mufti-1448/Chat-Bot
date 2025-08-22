@@ -192,10 +192,8 @@ async function scrapeJurusan() {
     const urlsToTry = [
         `${BASE_URL}/jurusan/`,
         `${BASE_URL}/jurusan/teknik-komputer-jaringan/`,
-        `${BASE_URL}/jurusan/teknik-kendaraan-ringan/`,
-        `${BASE_URL}/jurusan/teknik-sepeda-motor/`,
-        `${BASE_URL}/jurusan/busana-butik/`,
-        `${BASE_URL}/jurusan/rekayasa-perangkat-lunak/`,
+        `${BASE_URL}/keahlian/`,
+        `${BASE_URL}/kompetensi/`
     ];
 
     console.log("🎓 Scraping jurusan...");
@@ -329,9 +327,6 @@ async function scrapeEkskul() {
 }
 
 async function scrapeKontak() {
-    const urlsToTry = [
-        `${BASE_URL}/profile-sekolah/keadaan-sekolah/`,
-    ];
     console.log("📞 Scraping kontak...");
 
     try {

@@ -116,7 +116,7 @@ app.post("/ask", async (req, res) => {
     if (!q) {
         return res.json({
             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
-            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"]
+            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler",]
         });
     }
 
@@ -138,7 +138,7 @@ app.post("/ask", async (req, res) => {
 
         return res.json({
             answer: geminiAnswer,
-            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru", "Fasilitas sekolah"]
+            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah"]
         });
 
     } catch (e) {

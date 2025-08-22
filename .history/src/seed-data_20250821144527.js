@@ -16,17 +16,13 @@ async function seedData() {
     await run(`INSERT OR IGNORE INTO jurusan (nama, deskripsi) VALUES 
         ('Teknik Komputer dan Jaringan', 'Jurusan yang mempelajari jaringan komputer dan maintenance'),
         ('Rekayasa Perangkat Lunak', 'Jurusan yang fokus pada pemrograman dan pengembangan software'),
-        ('Teknik Kendaraan Ringan', 'Jurusan yang mempelajari perawatan dan perbaikan kendaraan ringan'),
-        ('Teknik Sepeda Motor', 'Jurusan yang fokus pada perawatan dan perbaikan sepeda motor'),
-        ('Busana Butik', 'Jurusan yang mengajarkan desain dan pembuatan busana'),`);
+        `);
 
     // Data ekskul
     await run(`INSERT OR IGNORE INTO ekskul (nama, pembina, deskripsi) VALUES 
         ('Pramuka', 'Pak Ahmad', 'Kegiatan kepanduan untuk melatih leadership'),
-        ('Paskibra', 'Bu Siti', 'Latihan baris berbaris dan upacara'),
-        ('OSIS', 'Pak Budi', 'Organisasi Siswa Intra Sekolah untuk mengembangkan soft skill'),
-        ('Robotik', 'Bu Ani', 'Eksplorasi teknologi robotik dan otomasi'),
-        ('Kewirausahaan', 'Pak Joko', 'Pelatihan bisnis dan kewirausahaan untuk siswa')`);
+        ('ROBOTIK', 'Bu Siti', 'Klub robotika dan programming'),
+        ('Seni Islami', 'Bu Fatima', 'Pengembangan baca seni islami')`);
 
     console.log("✅ Data dasar berhasil ditambahkan!");
 }

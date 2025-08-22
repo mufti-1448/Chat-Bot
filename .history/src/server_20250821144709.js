@@ -38,7 +38,7 @@ Petunjuk penting:
 - Gunakan bullet sederhana jika perlu, tanpa bold, italic, atau link panjang.
 - Jawab hanya sesuai pertanyaan user, jangan menambah informasi di luar permintaan user.
 - Jika informasi seputar SMK Syafi'i Akrom tidak ditemukan, jawab: "Maaf, informasi ini belum tersedia. Silakan kunjungi website resmi SMK Syafi'i Akrom."
-- Jika pertanyaan tidak relevan atau tidak jelas, jawab: "Maaf, saya tidak dapat membantu dengan pertanyaan tersebut."
+- Jika pertanyaan tidak relevan atau tidak jelas, jawab: "Maaf, saya tidak dapat membantu dengan pertanyaan tersebut.""
 
 KONTEKS SEKOLAH:
 ${contextStr.slice(0, 4000)}
@@ -116,7 +116,7 @@ app.post("/ask", async (req, res) => {
     if (!q) {
         return res.json({
             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
-            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"]
+            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler"]
         });
     }
 
@@ -138,7 +138,7 @@ app.post("/ask", async (req, res) => {
 
         return res.json({
             answer: geminiAnswer,
-            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru", "Fasilitas sekolah"]
+            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah"]
         });
 
     } catch (e) {

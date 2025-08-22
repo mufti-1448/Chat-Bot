@@ -23,10 +23,8 @@ async function seedData() {
     // Data ekskul
     await run(`INSERT OR IGNORE INTO ekskul (nama, pembina, deskripsi) VALUES 
         ('Pramuka', 'Pak Ahmad', 'Kegiatan kepanduan untuk melatih leadership'),
-        ('Paskibra', 'Bu Siti', 'Latihan baris berbaris dan upacara'),
-        ('OSIS', 'Pak Budi', 'Organisasi Siswa Intra Sekolah untuk mengembangkan soft skill'),
-        ('Robotik', 'Bu Ani', 'Eksplorasi teknologi robotik dan otomasi'),
-        ('Kewirausahaan', 'Pak Joko', 'Pelatihan bisnis dan kewirausahaan untuk siswa')`);
+        ('ROBOTIK', 'Bu Siti', 'Klub robotika dan programming'),
+        ('Seni Islami', 'Bu Fatima', 'Pengembangan baca seni islami')`);
 
     console.log("✅ Data dasar berhasil ditambahkan!");
 }

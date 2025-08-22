@@ -188,8 +188,8 @@ class ChatBot {
     formatKontakResponse(kontakInfo) {
         let response = "📞 **KONTAK SEKOLAH**\n\n";
         response += `📍 **Alamat:** ${kontakInfo.alamat || ''}\n`;
-        response += `📞 **Telepon:** ${kontakInfo.telp || '(0285) 1234567'}\n`;
-        response += `📧 **Email:** ${kontakInfo.email || 'info@smksa.sch.id'}\n\n`;
+        response += `📞 **Telepon:** ${kontakInfo.telp || ''}\n`;
+        response += `📧 **Email:** ${kontakInfo.email || ''}\n\n`;
         response += "🌐 **Website:** https://ponpes-smksa.sch.id/";
 
         return response;

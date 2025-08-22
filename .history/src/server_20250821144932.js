@@ -138,7 +138,7 @@ app.post("/ask", async (req, res) => {
 
         return res.json({
             answer: geminiAnswer,
-            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru", "Fasilitas sekolah"]
+            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah"]
         });
 
     } catch (e) {

@@ -109,7 +109,7 @@ async function scrapeProfilSekolah() {
     const urlsToTry = [
         `${BASE_URL}/profile-sekolah/`,
         `${BASE_URL}/profile-sekolah/keadaan-sekolah/`,
-        `${BASE_URL}/profile-sekolah/sarana-prasarana/`,
+        `${BASE_URL}`,
         `${BASE_URL}/profile-sekolah/visi-misi/`
     ];
 
@@ -132,7 +132,7 @@ async function scrapeProfilSekolah() {
             if (visi) {
                 await db.run(
                     `INSERT INTO statis (key, value) VALUES ('visi', ?) 
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+                     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
                     [visi]
                 );
                 console.log("✅ Found and saved visi");
@@ -141,7 +141,7 @@ async function scrapeProfilSekolah() {
             if (misi) {
                 await db.run(
                     `INSERT INTO statis (key, value) VALUES ('misi', ?) 
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+                     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
                     [misi]
                 );
                 console.log("✅ Found and saved misi");
@@ -155,7 +155,7 @@ async function scrapeProfilSekolah() {
             if (addressMatch) {
                 await db.run(
                     `INSERT INTO statis (key, value) VALUES ('alamat', ?) 
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+                     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
                     [addressMatch[1].trim()]
                 );
             }
@@ -163,7 +163,7 @@ async function scrapeProfilSekolah() {
             if (phoneMatch) {
                 await db.run(
                     `INSERT INTO statis (key, value) VALUES ('telp', ?) 
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+                     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
                     [phoneMatch[1].trim()]
                 );
             }
@@ -171,7 +171,7 @@ async function scrapeProfilSekolah() {
             if (emailMatch) {
                 await db.run(
                     `INSERT INTO statis (key, value) VALUES ('email', ?) 
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+                     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
                     [emailMatch[1].trim()]
                 );
             }
@@ -191,11 +191,9 @@ async function scrapeProfilSekolah() {
 async function scrapeJurusan() {
     const urlsToTry = [
         `${BASE_URL}/jurusan/`,
-        `${BASE_URL}/jurusan/teknik-komputer-jaringan/`,
-        `${BASE_URL}/jurusan/teknik-kendaraan-ringan/`,
-        `${BASE_URL}/jurusan/teknik-sepeda-motor/`,
-        `${BASE_URL}/jurusan/busana-butik/`,
-        `${BASE_URL}/jurusan/rekayasa-perangkat-lunak/`,
+        `${BASE_URL}/program/`,
+        `${BASE_URL}/keahlian/`,
+        `${BASE_URL}/kompetensi/`
     ];
 
     console.log("🎓 Scraping jurusan...");
@@ -329,9 +327,6 @@ async function scrapeEkskul() {
 }
 
 async function scrapeKontak() {
-    const urlsToTry = [
-        `${BASE_URL}/profile-sekolah/keadaan-sekolah/`,
-    ];
     console.log("📞 Scraping kontak...");
 
     try {
