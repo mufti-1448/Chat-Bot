@@ -1,8 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-// ✅ SIMPLE & EFFECTIVE CORS
 const cors = require("cors");
-app.use(cors());
 const path = require('path');
 const db = require("./JS/db");
 const {
@@ -13,8 +11,14 @@ const {
 } = require("./JS/bot");
 const axios = require("axios");
 
-const app = express();
+const app = express(); // ✅ INI HARUS DULUAN
 const PORT = process.env.PORT || 3001;
+
+// ✅ BARU SETELAH ITU PAKAI app.use()
+app.use(cors()); // ✅ SIMPLE CORS
+
+app.use(express.json());
+
 
 // ✅ Root endpoint
 app.get('/', (req, res) => {
