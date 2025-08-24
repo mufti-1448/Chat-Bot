@@ -10,7 +10,16 @@ const axios = require("axios");
 
 const app = express(); // ✅ INI HARUS DULUAN
 const PORT = process.env.PORT || 3001;
-
+const patterns = {
+    'jurusan': 'SMK Syafi\'i Akrom memiliki 3 jurusan unggulan: 1. TKJ (Teknik Komputer dan Jaringan) 2. RPL (Rekayasa Perangkat Lunak) 3. Multimedia. Mau tahu lebih detail tentang jurusan mana?',
+    'tkj': 'Jurusan TKJ mempelajari: - Jaringan komputer - Server administration - Cybersecurity - Hardware maintenance. Prospek kerja: Network Administrator, IT Support, System Administrator.',
+    'rpl': 'Jurusan RPL fokus pada: - Pemrograman web dan mobile - Database design - Software development. Teknologi: JavaScript, Python, PHP, React Native.',
+    'multimedia': 'Jurusan Multimedia belajar: - Desain grafis - Animasi 2D/3D - Video editing - Photography - Content creation. Software: Adobe Photoshop, Illustrator, Premiere Pro.',
+    'ppdb': 'Info PPDB terbaru bisa dilihat di: https://ppdb.ponpes-smksa.sch.id. Pendaftaran dibuka untuk tahun ajaran 2024/2025.',
+    'kontak': 'Kontak SMK Syafi\'i Akrom: 📞 Telp: (0285) 123-4567 📧 Email: info@smksa.sch.id 🌐 Website: https://ponpes-smksa.sch.id 🏫 Alamat: Jl. Contoh No. 123, Pekalongan',
+    'alamat': 'Alamat SMK Syafi\'i Akrom: Jl. Contoh No. 123, Pekalongan, Jawa Tengah. Bisa dilihat di Google Maps.',
+    'ekskul': 'Ekskul yang tersedia: 1. Pramuka 2. Robotik 3. Basket 4. Marching Band 5. IT Club. Mau tahu detail ekskul tertentu?'
+};
 // ✅ BARU SETELAH ITU PAKAI app.use()
 app.use(cors()); // ✅ SIMPLE CORS
 
@@ -164,6 +173,13 @@ app.post("/api/ask", async (req, res) => {
     }
 });
 
+// Juga endpoint debug
+app.get("/api/debug", (req, res) => {
+    res.json({
+        version: "debug-test"
+    });
+});
+
 // ===== Endpoint Health Check =====
 app.get("/api/health", async (req, res) => {
     try {
@@ -254,7 +270,7 @@ app.post("/api/admin/clear-cache", async (req, res) => {
 // });
 
 app.post("/api/ask", async (req, res) => {
-    const message = (req.body ? .message || "").trim().toLowerCase();
+    const message = (req.body ?.message || "").trim().toLowerCase();
 
     console.log("Received message:", message); // ✅ DEBUG LOG
 
