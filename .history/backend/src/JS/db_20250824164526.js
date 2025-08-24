@@ -10,9 +10,8 @@ class Database {
         this.initializing = false;
     }
 
-    // 📌 Lokasi database ada di backend/school.db
     getDatabasePath() {
-        return path.join(__dirname, "..", "school.db");
+        return path.join(__dirname, "school.db");
     }
 
     ensureDatabaseDir() {
@@ -163,11 +162,7 @@ class Database {
                     ["website", "https://ponpes-smksa.sch.id/"]
                 ];
                 for (const [key, value] of defaultData) {
-                    try {
-                        await this.setStatis(key, value);
-                    } catch (err) {
-                        console.error("⚠️ Failed insert default statis:", err.message);
-                    }
+                    await this.setStatis(key, value);
                 }
             }
 
@@ -180,14 +175,10 @@ class Database {
                     ["Multimedia", "Desain grafis, animasi, video editing, konten digital."]
                 ];
                 for (const [nama, deskripsi] of defaultJurusan) {
-                    try {
-                        await this.run(
-                            `INSERT OR IGNORE INTO jurusan (nama, deskripsi) VALUES (?, ?)`,
-                            [nama, deskripsi]
-                        );
-                    } catch (err) {
-                        console.error("⚠️ Failed insert default jurusan:", err.message);
-                    }
+                    await this.run(
+                        `INSERT OR IGNORE INTO jurusan (nama, deskripsi) VALUES (?, ?)`,
+                        [nama, deskripsi]
+                    );
                 }
             }
 
@@ -200,14 +191,10 @@ class Database {
                     ["Seni Islami", "Bu Fatimah", "Pengembangan seni islami & tilawah."]
                 ];
                 for (const [nama, pembina, deskripsi] of defaultEkskul) {
-                    try {
-                        await this.run(
-                            `INSERT OR IGNORE INTO ekskul (nama, pembina, deskripsi) VALUES (?, ?, ?)`,
-                            [nama, pembina, deskripsi]
-                        );
-                    } catch (err) {
-                        console.error("⚠️ Failed insert default ekskul:", err.message);
-                    }
+                    await this.run(
+                        `INSERT OR IGNORE INTO ekskul (nama, pembina, deskripsi) VALUES (?, ?, ?)`,
+                        [nama, pembina, deskripsi]
+                    );
                 }
             }
         } catch (error) {
@@ -266,23 +253,6 @@ class Database {
                 }
             });
         });
-    }
-
-    // ✅ Tambahan untuk server.js → health check
-    async healthCheck() {
-        try {
-            await this.connectIfNeeded();
-            await this.get("SELECT 1 as ok");
-            return {
-                status: "ok",
-                db: this.dbPath
-            };
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            };
-        }
     }
 
     async close() {

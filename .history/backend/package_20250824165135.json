@@ -14,7 +14,8 @@
     "scrape:profile": "node src/JS/scraper.js profil",
     "test:bot": "node -e \"const { getAnswer } = require('./src/JS/bot'); getAnswer('halo').then(console.log).catch(console.error)\"",
     "test:server": "curl -X GET http://localhost:3001/api/health",
-    "test:ask": "curl -X POST http://localhost:3001/api/ask -H \"Content-Type: application/json\" -d \"{\\\"message\\\":\\\"apa saja jurusan?\\\"}\"",
+    "test:ask": "curl -X POST http://localhost:3001/api/ask -H \"Content-Type: application/json\" -d \"{\\\"message\\\":\\\"apa saja jurusan?\\\"}\""
+
     "db:backup": "node -e \"const db = require('./src/JS/db'); db.backup('./backup/school-backup.db').then(() => console.log('Backup completed')).catch(console.error)\"",
     "clean": "rm -rf node_modules package-lock.json && npm install",
     "setup": "npm install && npm run scrape"

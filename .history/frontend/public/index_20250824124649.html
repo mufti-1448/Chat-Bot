@@ -32,13 +32,11 @@
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
-            pointer-events: none;
         }
 
         .chat-container.active {
             transform: translateY(0);
             opacity: 1;
-            pointer-events: auto;
         }
 
         .chat-header {
@@ -48,7 +46,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            user-select: none;
+            cursor: pointer;
         }
 
         .chat-body {
@@ -169,17 +167,6 @@
             z-index: 999;
         }
 
-        .chat-header i#closeChat {
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-        }
-
-        .chat-header i#closeChat:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -210,26 +197,28 @@
 
 <body>
     <div class="chat-toggle" id="chatToggle">
-        <i class="fas fa-comment-dots" style="font-size:24px;"></i>
+        <i class="fas fa-comment-dots" style="font-size: 24px;"></i>
     </div>
 
     <div class="chat-container" id="chatContainer">
-        <div class="chat-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <img src="https://placehold.co/40x40" alt="ROBO SA" style="width:40px;height:40px;border-radius:50%;">
+        <div class="chat-header" id="chatHeader">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="https://placehold.co/40x40" alt="ROBO SA"
+                    style="width: 40px; height: 40px; border-radius: 50%;">
                 <div>
-                    <div style="font-weight:600;">SekolahBot AI</div>
-                    <div style="font-size:12px;opacity:0.8;">Siap membantu!</div>
+                    <div style="font-weight: 600;">SekolahBot AI</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Siap membantu!</div>
                 </div>
             </div>
-            <i class="fas fa-times" id="closeChat"></i>
+            <i class="fas fa-times" id="closeChat" style="cursor: pointer;"></i>
         </div>
 
         <div class="chat-body" id="chatBody">
+            <!-- Initial message -->
             <div class="message bot-message">
                 Halo! Saya SekolahBot AI 🤖<br><br>
                 Saya bisa membantu Anda dengan:
-                <ul style="margin-top:8px;padding-left:20px;">
+                <ul style="margin-top: 8px; padding-left: 20px;">
                     <li>Informasi terkait PPDB SMK Syafi'i Akrom</li>
                     <li>Jurusan apa saja yang tersedia</li>
                     <li>Apa saja fasilitas yang ada di sekolah</li>
@@ -246,103 +235,183 @@
 
         <div class="chat-footer">
             <input type="text" class="chat-input" id="userInput" placeholder="Ketik pesan Anda...">
-            <button class="send-btn" id="sendButton"><i class="fas fa-paper-plane"></i></button>
+            <button class="send-btn" id="sendButton">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function () {
             const chatToggle = document.getElementById('chatToggle');
             const chatContainer = document.getElementById('chatContainer');
             const closeChat = document.getElementById('closeChat');
+            const chatHeader = document.getElementById('chatHeader');
             const chatBody = document.getElementById('chatBody');
             const userInput = document.getElementById('userInput');
             const sendButton = document.getElementById('sendButton');
 
-            // Auto pilih Railway atau localhost
-            const API_URL = window.location.hostname.includes("localhost") ?
-                "http://localhost:5000/api/ask" :
-                "https://chatbot-sekolah-production.up.railway.app/api/ask";
+            // API Configuration - ✅ DIPERBAIKI
+            const API_BASE = "https://chatbot-sekolah-production.up.railway.app";
 
-            chatToggle.addEventListener('click', () => chatContainer.classList.toggle('active'));
-            closeChat.addEventListener('click', () => chatContainer.classList.remove('active'));
+            // Show chat container
+            setTimeout(() => {
+                chatContainer.classList.add('active');
+            }, 1000);
 
-            async function sendMessage(message) {
+            // Toggle chat
+            chatToggle.addEventListener('click', () => {
+                chatContainer.classList.toggle('active');
+            });
+
+            // Close chat
+            closeChat.addEventListener('click', (e) => {
+                e.stopPropagation();
+                chatContainer.classList.remove('active');
+            });
+
+            // Header click also toggles
+            chatHeader.addEventListener('click', () => {
+                chatContainer.classList.toggle('active');
+            });
+
+            // Send message function - ✅ DIPERBAIKI
+            async function sendMessage() {
+                const message = userInput.value.trim();
                 if (!message) return;
+
+                // Add user message to chat
                 addMessage(message, 'user');
                 userInput.value = '';
+
+                // Show typing indicator
                 showTypingIndicator();
 
                 try {
-                    const response = await fetch(API_URL, {
+                    // ✅ DIPERBAIKI: Gunakan API_BASE yang benar
+                    const response = await fetch(`${API_BASE}/api/ask`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            message
+                            question: message
                         })
                     });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
                     const data = await response.json();
-                    addMessage(data.answer || "Maaf, saya belum mengerti.", 'bot', data.quickReplies || []);
-                } catch (err) {
-                    console.error(err);
-                    addMessage("❌ Terjadi kesalahan koneksi.", 'bot');
+
+                    // Tambahkan jawaban dari backend dengan quick replies jika ada
+                    addMessage(data.answer, 'bot', data.quickReplies || []);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('Maaf, terjadi kesalahan. Silakan coba lagi.', 'bot');
                 }
             }
 
+            // Add message to chat dengan quick replies
             function addMessage(text, sender, quickReplies = []) {
-                // hapus typing indicator lama
-                const typing = chatBody.querySelector('.typing-indicator');
-                if (typing) chatBody.removeChild(typing);
-
-                const div = document.createElement('div');
-                div.className = `message ${sender}-message`;
-                div.innerHTML = text.replace(/\n/g, '<br>');
-
-                if (quickReplies.length) {
-                    const qrDiv = document.createElement('div');
-                    qrDiv.className = 'quick-replies';
-                    quickReplies.forEach(r => {
-                        const btn = document.createElement('button');
-                        btn.className = 'quick-reply-btn';
-                        btn.textContent = r;
-                        btn.onclick = () => sendMessage(r);
-                        qrDiv.appendChild(btn);
-                    });
-                    div.appendChild(qrDiv);
+                // Remove typing indicator if present
+                const existingTyping = chatBody.querySelector('.typing-indicator');
+                if (existingTyping) {
+                    chatBody.removeChild(existingTyping);
                 }
 
-                chatBody.appendChild(div);
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+
+                // Add quick replies jika provided
+                if (quickReplies && quickReplies.length > 0) {
+                    const quickRepliesDiv = document.createElement('div');
+                    quickRepliesDiv.className = 'quick-replies';
+
+                    quickReplies.forEach(reply => {
+                        const btn = document.createElement('button');
+                        btn.className = 'quick-reply-btn';
+                        btn.textContent = reply;
+                        btn.addEventListener('click', () => {
+                            addMessage(reply, 'user');
+                            showTypingIndicator();
+
+                            // Kirim quick reply ke backend setelah delay
+                            setTimeout(() => {
+                                sendQuickReply(reply);
+                            }, 300);
+                        });
+                        quickRepliesDiv.appendChild(btn);
+                    });
+
+                    messageDiv.appendChild(quickRepliesDiv);
+                }
+
+                chatBody.appendChild(messageDiv);
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
 
-            function showTypingIndicator() {
-                const old = chatBody.querySelector('.typing-indicator');
-                if (old) old.remove();
+            // Function untuk mengirim quick reply - ✅ DIPERBAIKI
+            async function sendQuickReply(reply) {
+                showTypingIndicator();
 
+                try {
+                    // ✅ DIPERBAIKI: Gunakan API_BASE yang benar
+                    const response = await fetch(`${API_BASE}/api/ask`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            question: reply
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    addMessage(data.answer, 'bot', data.quickReplies || []);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('Maaf, terjadi kesalahan.', 'bot');
+                }
+            }
+
+            // Show typing indicator
+            function showTypingIndicator() {
                 const typingDiv = document.createElement('div');
                 typingDiv.className = 'typing-indicator';
+
                 for (let i = 0; i < 3; i++) {
                     const dot = document.createElement('div');
                     dot.className = 'typing-dot';
-                    dot.style.animationDelay = `${i*0.2}s`;
+                    dot.style.animationDelay = `${i * 0.2}s`;
                     typingDiv.appendChild(dot);
                 }
+
                 chatBody.appendChild(typingDiv);
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
 
-            sendButton.addEventListener('click', () => sendMessage(userInput.value.trim()));
-            userInput.addEventListener('keypress', e => {
-                if (e.key === 'Enter') sendMessage(userInput.value.trim());
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
             });
 
-            // Quick reply awal
-            chatBody.addEventListener('click', e => {
-                if (e.target.classList.contains('quick-reply-btn')) {
-                    sendMessage(e.target.textContent);
-                }
+            // Quick reply buttons in initial message
+            document.querySelectorAll('.quick-reply-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const text = this.textContent;
+                    addMessage(text, 'user');
+                    sendQuickReply(text);
+                });
             });
         });
     </script>

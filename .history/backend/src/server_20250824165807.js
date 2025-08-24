@@ -130,7 +130,7 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 
 // ===== Endpoint Tanya =====
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || req.body ?.message || "").trim().toLowerCase();
+    const q = (req.body ?.question || req.body ? .message || "").trim().toLowerCase();
     if (!q) {
         return res.json({
             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
