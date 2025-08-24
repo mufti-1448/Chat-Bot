@@ -113,10 +113,10 @@ Pertanyaan: ${question}`
             }
         );
 
-        if (response.data ? .candidates ? . [0] ? .content ? .parts ? . [0] ? .text) {
+        if (response.data ?.candidates ?. [0] ?.content ?.parts ?. [0] ?.text) {
             return response.data.candidates[0].content.parts[0].text;
         }
-        return response.data ? .error ? .message || "Gagal mendapatkan jawaban dari AI.";
+        return response.data ?.error ?.message || "Gagal mendapatkan jawaban dari AI.";
     } catch (error) {
         console.error("Gemini API Error:", error);
         return "Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nati.";
@@ -166,7 +166,7 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 
 // ===== Endpoint Tanya =====
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ? .question || "").trim();
+    const q = (req.body ?.question || "").trim();
 
     if (!q) {
         return res.json({
