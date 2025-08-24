@@ -15,7 +15,6 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware untuk production
-// GANTI CORS configuration menjadi:
 app.use(cors({
     origin: function (origin, callback) {
         // Izinkan semua origin untuk development dan testing
@@ -25,7 +24,7 @@ app.use(cors({
             // Untuk production, izinkan domain tertentu
             const allowedOrigins = [
                 "https://chatbot-sekolah-production.up.railway.app",
-                "https://your-frontend-domain.vercel.app",
+                "https://chatbot-sekolah.vercel.app",
                 "https://ponpes-smksa.sch.id",
                 "http://localhost:3000",
                 "http://127.0.0.1:5500",
@@ -50,15 +49,23 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
-// Serve static files untuk production (jika frontend digabung)
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/public')));
-
-    // Route untuk menangani refresh pada frontend (SPA)
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+// ✅ PERBAIKAN: Hapus static file serving untuk production
+// Karena frontend terpisah di Vercel, kita hanya serve API
+app.get('/', (req, res) => {
+    res.json({
+        message: 'SMK Chatbot API is running!',
+        endpoints: {
+            health: '/api/health',
+            chat: '/api/ask',
+            admin: '/api/admin/bot-stats',
+            test: '/api/test-bot'
+        },
+        environment: process.env.NODE_ENV || 'development'
     });
-} else {
+});
+
+// Untuk development, tetap serve static files
+if (process.env.NODE_ENV !== 'production') {
     app.use(express.static("public"));
 }
 
@@ -76,7 +83,7 @@ Petunjuk penting:
 - Jika pertanyaan berkaitan dengan SMK Syafi'i Akrom, prioritaskan jawaban berdasarkan informasi yang tersedia di https://ponpes-smksa.sch.id/.
 - Jika pertanyaan tentang PPDB, cari dan rangkum informasi terbaru dari https://ppdb.ponpes-smksa.sch.id/, lalu berikan jawaban singkat dan sertakan link tersebut di akhir jawaban.
 - Jika pertanyaan tentang BKK atau Bursa Kerja Khusus, cari dan rangkum informasi dari https://bkk.ponpes-smksa.sch.id/, lalu berikan jawaban singkat dan sertakan link tersebut di akhir jawaban.
-- Jika pertanyaan user seputar ilmu pengetahuan umum, pendidikan, atau hal bermanfaat lainnya (misal: sains, matematika, kimia, fisika, teknologi, motivasi, dan sebagainya), jawab sesuai pengetahuan Anda secara ringkas, jelas, dan mudah dipahami.
+- Jika pertanyaan user seputar ilmu pengetahuan umum, pendidikan, atau hal bermanfaat lainnya (misal: sains, matematika, kimia, fisika, tecnologia, motivasi, dan sebagainya), jawab sesuai pengetahuan Anda secara ringkas, jelas, dan mudah dipahami.
 - Jangan membatasi jawaban hanya pada informasi sekolah saja jika pertanyaan user bersifat umum atau edukatif.
 - Gunakan bullet sederhana jika perlu, tanpa bold, italic, atau link panjang.
 - Jawab hanya sesuai pertanyaan user, jangan menambah informasi di luar permintaan user.
@@ -101,13 +108,13 @@ Pertanyaan: ${question}`
             }
         );
 
-        if (response.data ?.candidates ?. [0] ?.content ?.parts ?. [0] ?.text) {
+        if (response.data ? .candidates ? . [0] ? .content ? .parts ? . [0] ? .text) {
             return response.data.candidates[0].content.parts[0].text;
         }
-        return response.data ?.error ?.message || "Gagal mendapatkan jawaban dari AI.";
+        return response.data ? .error ? .message || "Gagal mendapatkan jawaban dari AI.";
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return "Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nanti.";
+        return "Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nati.";
     }
 }
 
@@ -154,7 +161,7 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 
 // ===== Endpoint Tanya =====
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || "").trim();
+    const q = (req.body ? .question || "").trim();
 
     if (!q) {
         return res.json({
@@ -164,10 +171,8 @@ app.post("/api/ask", async (req, res) => {
     }
 
     try {
-        // ✅ GUNAKAN BOT.JS UNTUK MENDAPATKAN JAWABAN
         const botResponse = await getAnswer(q);
 
-        // Jika bot mengembalikan answer, langsung gunakan
         if (botResponse.answer && botResponse.source !== "fallback") {
             return res.json({
                 answer: botResponse.answer,
@@ -175,7 +180,6 @@ app.post("/api/ask", async (req, res) => {
             });
         }
 
-        // Jika bot tidak menemukan jawaban (fallback), gunakan Gemini AI
         const ctx = await buildContext();
         const geminiAnswer = await askGemini(q, ctx);
 
@@ -310,11 +314,9 @@ app.post("/api/test-bot", async (req, res) => {
 // ===== START SERVER =====
 async function startServer() {
     try {
-        // Connect database manual
         await db.connectIfNeeded();
         console.log("✅ Database connected successfully");
 
-        // Check if tables exist, if not then init
         const tablesExist = await db.checkTablesExist();
         if (!tablesExist) {
             console.log("🔄 Initializing database tables...");
@@ -323,7 +325,6 @@ async function startServer() {
             console.log("✅ Database tables already exist");
         }
 
-        // Start server
         app.listen(PORT, () => {
             console.log(`🚀 Server berjalan di port ${PORT}`);
             console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
