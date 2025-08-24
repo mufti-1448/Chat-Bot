@@ -1,33 +1,3 @@
-// Tambahkan di paling atas file
-export default async function handler(req, res) {
-    // ✅ SET CORS HEADERS - HARUS DITAMBAHKAN
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    // ✅ HANDLE PREFLIGHT REQUEST
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    // ... kode Anda yang sudah ada ...
-    if (req.method === 'POST') {
-        try {
-            const {
-                message
-            } = req.body;
-            // Your existing logic here
-            res.status(200).json({
-                answer: "Response dari backend",
-                quickReplies: ["Option 1", "Option 2"]
-            });
-        } catch (error) {
-            res.status(500).json({
-                error: error.message
-            });
-        }
-    }
-}
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -46,41 +16,26 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware untuk production
 app.use(cors({
-    origin: function (origin, callback) {
-        // Izinkan semua origin untuk development dan testing
-        if (!origin || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            // Untuk production, izinkan domain tertentu
-            const allowedOrigins = [
-                "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
-                "https://chatbot-sekolah-production.up.railway.app",
-                "https://ponpes-smksa.sch.id",
-                "http://localhost:3000",
-                "http://127.0.0.1:5500",
-                "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502"
-            ];
-
-            // Izinkan juga curl/Postman requests (tidak ada origin header)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
+    origin: [
+        "https://chatbot-smksa.vercel.app",
+        "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
+        "https://ponpes-smksa.sch.id",
+        "http://localhost:3000",
+        "http://127.0.0.1:5500",
+        "http://127.0.0.1:5501",
+        "http://127.0.0.1:5502"
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
 }));
 
-// Tambahkan untuk handle preflight requests
-app.options('*', cors());
+// ✅ TAMBAHKAN INI untuk handle preflight requests
+app.options('*', cors()); // Enable preflight for all routes
+
 app.use(express.json());
 
-// ✅ PERBAIKAN: Hapus static file serving untuk production
-// Karena frontend terpisah di Vercel, kita hanya serve API
+// ✅ Hapus endpoint root yang redundant
 app.get('/', (req, res) => {
     res.json({
         message: 'SMK Chatbot API is running!',
