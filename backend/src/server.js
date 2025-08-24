@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+// ✅ SIMPLE & EFFECTIVE CORS
 const cors = require("cors");
 const path = require('path');
 const db = require("./JS/db");
@@ -14,7 +15,7 @@ const axios = require("axios");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware untuk production
+// ✅ GANTI SEMUA CODE CORS YANG ADA DENGAN INI:
 app.use(cors({
     origin: [
         "https://chatbot-smksa.vercel.app",
@@ -26,16 +27,16 @@ app.use(cors({
         "http://127.0.0.1:5502"
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// ✅ TAMBAHKAN INI untuk handle preflight requests
-app.options('*', cors()); // Enable preflight for all routes
+// ✅ OPSI PALING SIMPLE - Jika mau izinkan semua origin
+// app.use(cors());
 
 app.use(express.json());
 
-// ✅ Hapus endpoint root yang redundant
+// ✅ Root endpoint
 app.get('/', (req, res) => {
     res.json({
         message: 'SMK Chatbot API is running!',
