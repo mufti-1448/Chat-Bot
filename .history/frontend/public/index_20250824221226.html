@@ -261,7 +261,7 @@
 
             // Auto pilih Railway atau localhost
             const API_URL = window.location.hostname.includes("localhost") ?
-                "http://localhost:3000/api/ask" :
+                "http://localhost:5000/api/ask" :
                 "https://chatbot-sekolah-production.up.railway.app/api/ask";
 
             chatToggle.addEventListener('click', () => chatContainer.classList.toggle('active'));
@@ -280,14 +280,9 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            question: message // Diperbaiki dari 'message' ke 'question'
+                            message
                         })
                     });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
                     const data = await response.json();
                     addMessage(data.answer || "Maaf, saya belum mengerti.", 'bot', data.quickReplies || []);
                 } catch (err) {
@@ -295,6 +290,34 @@
                     addMessage("❌ Terjadi kesalahan koneksi.", 'bot');
                 }
             }
+
+            // Function untuk mengirim quick reply - ✅ TAMBAHKAN INI
+async function sendQuickReply(reply) {
+    showTypingIndicator();
+
+    try {
+        const response = await fetch(`${API_BASE}/api/ask`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question: reply
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        addMessage(data.answer, 'bot', data.quickReplies || []);
+
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('Maaf, terjadi kesalahan.', 'bot');
+    }
+}
 
             function addMessage(text, sender, quickReplies = []) {
                 // hapus typing indicator lama
@@ -343,12 +366,11 @@
                 if (e.key === 'Enter') sendMessage(userInput.value.trim());
             });
 
-            // Quick reply awal - hanya satu event listener
-            document.querySelectorAll('.quick-reply-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const text = this.textContent;
-                    sendMessage(text);
-                });
+            // Quick reply awal
+            chatBody.addEventListener('click', e => {
+                if (e.target.classList.contains('quick-reply-btn')) {
+                    sendMessage(e.target.textContent);
+                }
             });
         });
     </script>

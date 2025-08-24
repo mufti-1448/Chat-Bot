@@ -236,7 +236,7 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 //     }
 // });
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || "").trim();
+    const q = (req.body ? .question || "").trim();
 
     if (!q) {
         return res.json({
