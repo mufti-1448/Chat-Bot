@@ -15,26 +15,45 @@ const axios = require("axios");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ GANTI SEMUA CODE CORS YANG ADA DENGAN INI:
+// // ✅ GANTI SEMUA CODE CORS YANG ADA DENGAN INI:
+// app.use(cors({
+//     origin: [
+//         "https://chatbot-smksa.vercel.app",
+//         "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
+//         "https://ponpes-smksa.sch.id",
+//         "http://localhost:3000",
+//         "http://127.0.0.1:5500",
+//         "http://127.0.0.1:5501",
+//         "http://127.0.0.1:5502"
+//     ],
+//     credentials: true,
+//     methods: ["GET", "POST", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"]
+// }));
+
+// // ✅ OPSI PALING SIMPLE - Jika mau izinkan semua origin
+// // app.use(cors());
+
+// app.use(express.json());
+
+// ✅ GANTI DENGAN INI:
+const cors = require("cors");
+
+// OPSI 1: Izinkan semua origin (paling aman)
+app.use(cors());
+
+// OPSI 2: Atau izinkan origin tertentu saja
 app.use(cors({
     origin: [
         "https://chatbot-smksa.vercel.app",
         "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
         "https://ponpes-smksa.sch.id",
         "http://localhost:3000",
-        "http://127.0.0.1:5500",
-        "http://127.0.0.1:5501",
-        "http://127.0.0.1:5502"
+        "http://127.0.0.1:5500"
     ],
     credentials: true,
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    methods: ['GET', 'POST', 'OPTIONS']
 }));
-
-// ✅ OPSI PALING SIMPLE - Jika mau izinkan semua origin
-// app.use(cors());
-
-app.use(express.json());
 
 // ✅ Root endpoint
 app.get('/', (req, res) => {
@@ -94,10 +113,10 @@ Pertanyaan: ${question}`
             }
         );
 
-        if (response.data ?.candidates ?. [0] ?.content ?.parts ?. [0] ?.text) {
+        if (response.data ? .candidates ? . [0] ? .content ? .parts ? . [0] ? .text) {
             return response.data.candidates[0].content.parts[0].text;
         }
-        return response.data ?.error ?.message || "Gagal mendapatkan jawaban dari AI.";
+        return response.data ? .error ? .message || "Gagal mendapatkan jawaban dari AI.";
     } catch (error) {
         console.error("Gemini API Error:", error);
         return "Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nati.";
@@ -147,7 +166,7 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 
 // ===== Endpoint Tanya =====
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || "").trim();
+    const q = (req.body ? .question || "").trim();
 
     if (!q) {
         return res.json({
