@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 // ✅ SIMPLE & EFFECTIVE CORS
 const cors = require("cors");
+app.use(cors());
 const path = require('path');
 const db = require("./JS/db");
 const {
@@ -14,46 +15,6 @@ const axios = require("axios");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-// // ✅ GANTI SEMUA CODE CORS YANG ADA DENGAN INI:
-// app.use(cors({
-//     origin: [
-//         "https://chatbot-smksa.vercel.app",
-//         "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
-//         "https://ponpes-smksa.sch.id",
-//         "http://localhost:3000",
-//         "http://127.0.0.1:5500",
-//         "http://127.0.0.1:5501",
-//         "http://127.0.0.1:5502"
-//     ],
-//     credentials: true,
-//     methods: ["GET", "POST", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-// }));
-
-// // ✅ OPSI PALING SIMPLE - Jika mau izinkan semua origin
-// // app.use(cors());
-
-// app.use(express.json());
-
-// ✅ GANTI DENGAN INI:
-const cors = require("cors");
-
-// OPSI 1: Izinkan semua origin (paling aman)
-app.use(cors());
-
-// OPSI 2: Atau izinkan origin tertentu saja
-app.use(cors({
-    origin: [
-        "https://chatbot-smksa.vercel.app",
-        "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app",
-        "https://ponpes-smksa.sch.id",
-        "http://localhost:3000",
-        "http://127.0.0.1:5500"
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS']
-}));
 
 // ✅ Root endpoint
 app.get('/', (req, res) => {
