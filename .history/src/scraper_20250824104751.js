@@ -2,7 +2,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const cheerio = require("cheerio");
-const db = require("./db");
+const db = require("../backend/src/JS/db");
 
 const BASE_URL = process.env.BASE_URL || "https://ponpes-smksa.sch.id";
 
