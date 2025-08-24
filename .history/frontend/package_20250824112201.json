@@ -4,9 +4,9 @@
   "description": "Frontend ChatBot AI untuk SMK Syafi'i Akrom",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Open public/index.html in browser directly'",
-    "build": "echo 'No build needed'",
-    "preview": "echo 'No preview needed'",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "deploy": "vercel --prod"
   },
   "keywords": [
@@ -18,6 +18,9 @@
   ],
   "author": "SMK Syafi'i Akrom",
   "license": "MIT",
+  "devDependencies": {
+    "vite": "^4.4.5"
+  },
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"

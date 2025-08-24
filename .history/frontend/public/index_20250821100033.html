@@ -251,9 +251,6 @@
             const userInput = document.getElementById('userInput');
             const sendButton = document.getElementById('sendButton');
 
-            // API Configuration - ✅ DIPERBAIKI
-            const API_BASE = "http://localhost:3000";
-
             // Show chat container
             setTimeout(() => {
                 chatContainer.classList.add('active');
@@ -275,7 +272,7 @@
                 chatContainer.classList.toggle('active');
             });
 
-            // Send message function - ✅ DIPERBAIKI
+            // Send message function - TERINTEGRASI BACKEND
             async function sendMessage() {
                 const message = userInput.value.trim();
                 if (!message) return;
@@ -288,8 +285,8 @@
                 showTypingIndicator();
 
                 try {
-                    // ✅ DIPERBAIKI: Gunakan API_BASE yang benar
-                    const response = await fetch(`${API_BASE}/api/ask`, {
+                    // Kirim pesan ke backend endpoint /ask
+                    const response = await fetch('/ask', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -354,13 +351,12 @@
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
 
-            // Function untuk mengirim quick reply - ✅ DIPERBAIKI
+            // Function untuk mengirim quick reply
             async function sendQuickReply(reply) {
                 showTypingIndicator();
 
                 try {
-                    // ✅ DIPERBAIKI: Gunakan API_BASE yang benar
-                    const response = await fetch(`${API_BASE}/api/ask`, {
+                    const response = await fetch('/ask', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

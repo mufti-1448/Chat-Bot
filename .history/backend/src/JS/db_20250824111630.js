@@ -7,12 +7,17 @@ class Database {
         this.db = null;
         this.isConnected = false;
         this.dbPath = this.getDatabasePath();
-        this.initializing = false;
     }
 
     // Get database path based on environment
     getDatabasePath() {
-        return path.join(__dirname, "school.db");
+        if (process.env.NODE_ENV === 'production') {
+            // In production, use persistent storage path
+            return path.join(__dirname, 'school.db');
+        } else {
+            // In development, use local path
+            return path.join(__dirname, "school.db");
+        }
     }
 
     // Ensure database directory exists
@@ -29,10 +34,6 @@ class Database {
     async connect() {
         return new Promise((resolve, reject) => {
             try {
-                if (this.isConnected && this.db) {
-                    return resolve(this.db);
-                }
-
                 this.ensureDatabaseDir();
 
                 this.db = new sqlite3.Database(this.dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
@@ -51,13 +52,6 @@ class Database {
                 this.db.on('error', (err) => {
                     console.error('❌ Database error:', err);
                     this.isConnected = false;
-                    // Try to reconnect on error
-                    setTimeout(() => {
-                        if (!this.isConnected) {
-                            console.log('🔄 Attempting to reconnect to database...');
-                            this.connect().catch(console.error);
-                        }
-                    }, 5000);
                 });
 
             } catch (error) {
@@ -67,36 +61,10 @@ class Database {
         });
     }
 
-    // Check if tables exist
-    async checkTablesExist() {
-        try {
-            const result = await this.get(`
-                SELECT name FROM sqlite_master 
-                WHERE type='table' AND name='statis'
-            `);
-            return !!result;
-        } catch (error) {
-            return false;
-        }
-    }
-
     // Initialize database tables
     async init() {
-        if (this.initializing) return;
-        this.initializing = true;
-
         try {
             await this.connect();
-
-            // Check if tables already exist
-            const tablesExist = await this.checkTablesExist();
-            if (tablesExist) {
-                console.log("✅ Database tables already exist, skipping creation");
-                this.initializing = false;
-                return;
-            }
-
-            console.log("📝 Creating database tables...");
 
             await this.run(`PRAGMA journal_mode = WAL;`);
             await this.run(`PRAGMA foreign_keys = ON;`);
@@ -164,12 +132,13 @@ class Database {
         } catch (error) {
             console.error("❌ Database initialization error:", error);
 
+            // Try to recreate database if it's corrupted
             if (error.message.includes('database is corrupted') || error.message.includes('not a database')) {
                 console.log("🔄 Attempting to recreate corrupted database...");
                 await this.recreateDatabase();
+            } else {
+                throw error;
             }
-        } finally {
-            this.initializing = false;
         }
     }
 
@@ -195,6 +164,7 @@ class Database {
 
         } catch (error) {
             console.error("❌ Failed to recreate database:", error);
+            throw error;
         }
     }
 
@@ -282,7 +252,7 @@ class Database {
     async get(sql, params = []) {
         return new Promise((resolve, reject) => {
             if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
+                return reject(new Error("Database not connected"));
             }
 
             this.db.get(sql, params, (err, row) => {
@@ -300,7 +270,7 @@ class Database {
     async all(sql, params = []) {
         return new Promise((resolve, reject) => {
             if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
+                return reject(new Error("Database not connected"));
             }
 
             this.db.all(sql, params, (err, rows) => {
@@ -318,7 +288,7 @@ class Database {
     async run(sql, params = []) {
         return new Promise((resolve, reject) => {
             if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
+                return reject(new Error("Database not connected"));
             }
 
             this.db.run(sql, params, function (err) {
@@ -381,20 +351,33 @@ class Database {
         }
     }
 
-    // Connect if needed
-    async connectIfNeeded() {
-        if (!this.isConnected) {
-            await this.connect();
-        }
-        return this.db;
+    // Backup database (optional)
+    async backup(backupPath) {
+        return new Promise((resolve, reject) => {
+            if (!this.db || !this.isConnected) {
+                return reject(new Error("Database not connected"));
+            }
+
+            const backupDb = new sqlite3.Database(backupPath);
+            this.db.backup(backupDb, (err) => {
+                if (err) {
+                    console.error("❌ Database backup error:", err);
+                    reject(err);
+                } else {
+                    console.log("✅ Database backup completed:", backupPath);
+                    backupDb.close();
+                    resolve();
+                }
+            });
+        });
     }
 }
 
 // Create singleton instance
 const database = new Database();
 
-// Jangan auto-init, biarkan server.js yang handle
-// database.init().catch(console.error);
+// Initialize database when imported
+database.init().catch(console.error);
 
 // Graceful shutdown handling
 process.on('SIGINT', async () => {
@@ -407,6 +390,19 @@ process.on('SIGTERM', async () => {
     console.log('\n🔄 Shutting down database connection...');
     await database.close();
     process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', async (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    await database.close();
+    process.exit(1);
+});
+
+process.on('unhandledRejection', async (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    await database.close();
+    process.exit(1);
 });
 
 module.exports = database;

@@ -15,39 +15,12 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware untuk production
-// GANTI CORS configuration menjadi:
 app.use(cors({
-    origin: function (origin, callback) {
-        // Izinkan semua origin untuk development dan testing
-        if (!origin || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            // Untuk production, izinkan domain tertentu
-            const allowedOrigins = [
-                "https://chatbot-sekolah-production.up.railway.app",
-                "https://your-frontend-domain.vercel.app",
-                "https://ponpes-smksa.sch.id",
-                "http://localhost:3000",
-                "http://127.0.0.1:5500",
-                "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502"
-            ];
-
-            // Izinkan juga curl/Postman requests (tidak ada origin header)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
+    origin: process.env.NODE_ENV === 'production' ?
+        ["https://your-frontend-domain.vercel.app", "https://ponpes-smksa.sch.id"] :
+        "http://localhost:3000",
+    credentials: true
 }));
-
-// Tambahkan untuk handle preflight requests
-app.options('*', cors());
 app.use(express.json());
 
 // Serve static files untuk production (jika frontend digabung)
@@ -101,7 +74,7 @@ Pertanyaan: ${question}`
             }
         );
 
-        if (response.data ?.candidates ?. [0] ?.content ?.parts ?. [0] ?.text) {
+        if (response.data ?.candidates ?. [0] ?.content ?.parts ? . [0] ? .text) {
             return response.data.candidates[0].content.parts[0].text;
         }
         return response.data ?.error ?.message || "Gagal mendapatkan jawaban dari AI.";

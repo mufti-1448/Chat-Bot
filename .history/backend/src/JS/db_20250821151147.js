@@ -1,41 +1,19 @@
+// db.js
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
-const fs = require("fs");
 
 class Database {
     constructor() {
         this.db = null;
         this.isConnected = false;
-        this.dbPath = this.getDatabasePath();
-        this.initializing = false;
-    }
-
-    // Get database path based on environment
-    getDatabasePath() {
-        return path.join(__dirname, "school.db");
-    }
-
-    // Ensure database directory exists
-    ensureDatabaseDir() {
-        const dir = path.dirname(this.dbPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, {
-                recursive: true
-            });
-        }
     }
 
     // Connect to database
     async connect() {
         return new Promise((resolve, reject) => {
             try {
-                if (this.isConnected && this.db) {
-                    return resolve(this.db);
-                }
-
-                this.ensureDatabaseDir();
-
-                this.db = new sqlite3.Database(this.dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+                const dbPath = path.join(__dirname, "school.db");
+                this.db = new sqlite3.Database(dbPath, (err) => {
                     if (err) {
                         console.error("❌ Database connection error:", err.message);
                         reject(err);
@@ -43,7 +21,7 @@ class Database {
                     }
 
                     this.isConnected = true;
-                    console.log("✅ Connected to SQLite database:", this.dbPath);
+                    console.log("✅ Connected to SQLite database:", dbPath);
                     resolve(this.db);
                 });
 
@@ -51,13 +29,6 @@ class Database {
                 this.db.on('error', (err) => {
                     console.error('❌ Database error:', err);
                     this.isConnected = false;
-                    // Try to reconnect on error
-                    setTimeout(() => {
-                        if (!this.isConnected) {
-                            console.log('🔄 Attempting to reconnect to database...');
-                            this.connect().catch(console.error);
-                        }
-                    }, 5000);
                 });
 
             } catch (error) {
@@ -67,36 +38,10 @@ class Database {
         });
     }
 
-    // Check if tables exist
-    async checkTablesExist() {
-        try {
-            const result = await this.get(`
-                SELECT name FROM sqlite_master 
-                WHERE type='table' AND name='statis'
-            `);
-            return !!result;
-        } catch (error) {
-            return false;
-        }
-    }
-
     // Initialize database tables
     async init() {
-        if (this.initializing) return;
-        this.initializing = true;
-
         try {
             await this.connect();
-
-            // Check if tables already exist
-            const tablesExist = await this.checkTablesExist();
-            if (tablesExist) {
-                console.log("✅ Database tables already exist, skipping creation");
-                this.initializing = false;
-                return;
-            }
-
-            console.log("📝 Creating database tables...");
 
             await this.run(`PRAGMA journal_mode = WAL;`);
             await this.run(`PRAGMA foreign_keys = ON;`);
@@ -163,38 +108,7 @@ class Database {
 
         } catch (error) {
             console.error("❌ Database initialization error:", error);
-
-            if (error.message.includes('database is corrupted') || error.message.includes('not a database')) {
-                console.log("🔄 Attempting to recreate corrupted database...");
-                await this.recreateDatabase();
-            }
-        } finally {
-            this.initializing = false;
-        }
-    }
-
-    // Recreate database if corrupted
-    async recreateDatabase() {
-        try {
-            // Close existing connection
-            if (this.db) {
-                await this.close();
-            }
-
-            // Backup corrupted database
-            if (fs.existsSync(this.dbPath)) {
-                const backupPath = this.dbPath + '.corrupted.' + Date.now() + '.bak';
-                fs.renameSync(this.dbPath, backupPath);
-                console.log("📦 Backup of corrupted database created:", backupPath);
-            }
-
-            // Create new database
-            this.db = new sqlite3.Database(this.dbPath);
-            await this.init();
-            console.log("✅ Database recreated successfully");
-
-        } catch (error) {
-            console.error("❌ Failed to recreate database:", error);
+            throw error;
         }
     }
 
@@ -205,7 +119,7 @@ class Database {
             const statisCount = await this.get(`SELECT COUNT(*) as count FROM statis`);
             if (statisCount.count === 0) {
                 console.log("📝 Inserting default static data...");
-
+                    // mengirim atau membuat isi school.db
                 const defaultData = [
                     ['visi', 'Tersedianya generasi muda yang profesional, mandiri dan berakhlaqul karimah, serta mendapat ridha Allah SWT, melalui perpaduan Iman Taqwa dan IPTEK.'],
                     ['misi', '1. Menyiapkan peserta didik agar menjadi manusia produktif, mampu bekerja mandiri, mengisi lowongan pekerjaan yang ada di dunia usaha dan dunia industri sebagai tenaga kerja tingkat menengah sesuai dengan kompetensi dalam program keahlian masing-masing.\n2.Menyiapkan peserta didik agar mampu memilih karier, ulet dan gigih dalam berkompetisi, beradaptasi di lingkungan kerja, dan mengembangkan sikap professional dalam bidang keahliannya, beraqidah ahlussunnah wal jamaah, dan berakhlaqul karimah\n3. Membekali peserta didik dengan Ilmu Pengetahuan, teknologi, dan seni agar mampu mengembangkan diri di kemudian hari baik secara mandiri maupun melalui jenjang pendidikan yang lebih tinggi.\n4. Membina dan menyiapkan guru/ karyawan yang profesional dan berjiwa pendidik.'],
@@ -281,10 +195,6 @@ class Database {
     // Get single row
     async get(sql, params = []) {
         return new Promise((resolve, reject) => {
-            if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
-            }
-
             this.db.get(sql, params, (err, row) => {
                 if (err) {
                     console.error("❌ Database get error:", err);
@@ -299,10 +209,6 @@ class Database {
     // Get all rows
     async all(sql, params = []) {
         return new Promise((resolve, reject) => {
-            if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
-            }
-
             this.db.all(sql, params, (err, rows) => {
                 if (err) {
                     console.error("❌ Database all error:", err);
@@ -317,10 +223,6 @@ class Database {
     // Run SQL command
     async run(sql, params = []) {
         return new Promise((resolve, reject) => {
-            if (!this.db || !this.isConnected) {
-                return reject(new Error("Database not connected. Call connect() first."));
-            }
-
             this.db.run(sql, params, function (err) {
                 if (err) {
                     console.error("❌ Database run error:", err);
@@ -359,42 +261,43 @@ class Database {
     // Health check
     async healthCheck() {
         try {
-            if (!this.isConnected) {
-                await this.connect();
-            }
-
             const result = await this.get("SELECT 1 as status");
             return {
                 status: 'healthy',
-                connected: this.isConnected,
-                database_path: this.dbPath,
                 timestamp: new Date().toISOString()
             };
         } catch (error) {
             return {
                 status: 'unhealthy',
                 error: error.message,
-                connected: this.isConnected,
-                database_path: this.dbPath,
                 timestamp: new Date().toISOString()
             };
         }
     }
 
-    // Connect if needed
-    async connectIfNeeded() {
-        if (!this.isConnected) {
-            await this.connect();
-        }
-        return this.db;
+    // Backup database (optional)
+    async backup(backupPath) {
+        return new Promise((resolve, reject) => {
+            const backupDb = new sqlite3.Database(backupPath);
+            this.db.backup(backupDb, (err) => {
+                if (err) {
+                    console.error("❌ Database backup error:", err);
+                    reject(err);
+                } else {
+                    console.log("✅ Database backup completed:", backupPath);
+                    backupDb.close();
+                    resolve();
+                }
+            });
+        });
     }
 }
 
 // Create singleton instance
 const database = new Database();
 
-// Jangan auto-init, biarkan server.js yang handle
-// database.init().catch(console.error);
+// Initialize database when imported
+database.init().catch(console.error);
 
 // Graceful shutdown handling
 process.on('SIGINT', async () => {

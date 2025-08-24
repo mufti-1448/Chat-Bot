@@ -15,26 +15,19 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware untuk production
-// GANTI CORS configuration menjadi:
+// Enable CORS for all routes
 app.use(cors({
     origin: function (origin, callback) {
-        // Izinkan semua origin untuk development dan testing
-        if (!origin || process.env.NODE_ENV !== 'production') {
+        // Allow all origins in development
+        if (process.env.NODE_ENV !== 'production') {
             callback(null, true);
         } else {
-            // Untuk production, izinkan domain tertentu
+            // Restrict in production
             const allowedOrigins = [
-                "https://chatbot-sekolah-production.up.railway.app",
-                "https://your-frontend-domain.vercel.app",
-                "https://ponpes-smksa.sch.id",
-                "http://localhost:3000",
-                "http://127.0.0.1:5500",
-                "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502"
+                "https://your-frontend.vercel.app",
+                "https://ponpes-smksa.sch.id"
             ];
-
-            // Izinkan juga curl/Postman requests (tidak ada origin header)
-            if (!origin || allowedOrigins.includes(origin)) {
+            if (allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error('Not allowed by CORS'));
@@ -46,7 +39,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
 }));
 
-// Tambahkan untuk handle preflight requests
+// Handle preflight requests
 app.options('*', cors());
 app.use(express.json());
 

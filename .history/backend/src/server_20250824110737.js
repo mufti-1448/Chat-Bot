@@ -1,66 +1,23 @@
+// server.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require('path');
-const db = require("./JS/db");
+const db = require("./JS/db"); // ✅ DIPERBAIKI: dari ../db menjadi ./db
 const {
     main: runScraper
-} = require("./JS/scraper");
+} = require("./scraper"); // ✅ DIPERBAIKI: dari ../scraper menjadi ./scraper
 const {
     getAnswer
 } = require("./JS/bot");
 const axios = require("axios");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Middleware untuk production
-// GANTI CORS configuration menjadi:
 app.use(cors({
-    origin: function (origin, callback) {
-        // Izinkan semua origin untuk development dan testing
-        if (!origin || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            // Untuk production, izinkan domain tertentu
-            const allowedOrigins = [
-                "https://chatbot-sekolah-production.up.railway.app",
-                "https://your-frontend-domain.vercel.app",
-                "https://ponpes-smksa.sch.id",
-                "http://localhost:3000",
-                "http://127.0.0.1:5500",
-                "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502"
-            ];
-
-            // Izinkan juga curl/Postman requests (tidak ada origin header)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
+    origin: "http://localhost:3000",
+    credentials: true
 }));
-
-// Tambahkan untuk handle preflight requests
-app.options('*', cors());
 app.use(express.json());
-
-// Serve static files untuk production (jika frontend digabung)
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/public')));
-
-    // Route untuk menangani refresh pada frontend (SPA)
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
-    });
-} else {
-    app.use(express.static("public"));
-}
+app.use(express.static("public"));
 
 async function askGemini(question, contextStr = "") {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -104,7 +61,7 @@ Pertanyaan: ${question}`
         if (response.data ?.candidates ?. [0] ?.content ?.parts ?. [0] ?.text) {
             return response.data.candidates[0].content.parts[0].text;
         }
-        return response.data ?.error ?.message || "Gagal mendapatkan jawaban dari AI.";
+        return response.data ?.error ? .message || "Gagal mendapatkan jawaban dari AI.";
     } catch (error) {
         console.error("Gemini API Error:", error);
         return "Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nanti.";
@@ -153,8 +110,8 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 }
 
 // ===== Endpoint Tanya =====
-app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || "").trim();
+app.post("/ask", async (req, res) => {
+    const q = (req.body ? .question || "").trim();
 
     if (!q) {
         return res.json({
@@ -194,7 +151,7 @@ app.post("/api/ask", async (req, res) => {
 });
 
 // ===== Endpoint Health Check =====
-app.get("/api/health", async (req, res) => {
+app.get("/health", async (req, res) => {
     try {
         const health = await db.healthCheck();
         res.json({
@@ -214,7 +171,7 @@ app.get("/api/health", async (req, res) => {
 });
 
 // ===== Endpoint Bot Stats (Admin) =====
-app.get("/api/admin/bot-stats", async (req, res) => {
+app.get("/admin/bot-stats", async (req, res) => {
     try {
         const {
             chatbot
@@ -238,7 +195,7 @@ app.get("/api/admin/bot-stats", async (req, res) => {
 });
 
 // ===== Endpoint Clear Cache (Admin) =====
-app.post("/api/admin/clear-cache", async (req, res) => {
+app.post("/admin/clear-cache", async (req, res) => {
     try {
         const {
             chatbot
@@ -258,7 +215,7 @@ app.post("/api/admin/clear-cache", async (req, res) => {
 });
 
 // ===== Endpoint Refresh Scraping =====
-app.post("/api/refresh", async (req, res) => {
+app.post("/refresh", async (req, res) => {
     const token = req.headers["x-refresh-token"];
     if (token !== process.env.REFRESH_TOKEN) {
         return res.status(403).json({
@@ -283,7 +240,7 @@ app.post("/api/refresh", async (req, res) => {
 });
 
 // ===== Endpoint Test Bot (Development) =====
-app.post("/api/test-bot", async (req, res) => {
+app.post("/test-bot", async (req, res) => {
     const {
         question
     } = req.body;
@@ -307,37 +264,11 @@ app.post("/api/test-bot", async (req, res) => {
     }
 });
 
-// ===== START SERVER =====
-async function startServer() {
-    try {
-        // Connect database manual
-        await db.connectIfNeeded();
-        console.log("✅ Database connected successfully");
-
-        // Check if tables exist, if not then init
-        const tablesExist = await db.checkTablesExist();
-        if (!tablesExist) {
-            console.log("🔄 Initializing database tables...");
-            await db.init();
-        } else {
-            console.log("✅ Database tables already exist");
-        }
-
-        // Start server
-        app.listen(PORT, () => {
-            console.log(`🚀 Server berjalan di port ${PORT}`);
-            console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
-            console.log(`🤖 Chatbot endpoint: http://localhost:${PORT}/api/ask`);
-            console.log(`📊 Bot stats: http://localhost:${PORT}/api/admin/bot-stats`);
-            console.log(`🧪 Test bot: http://localhost:${PORT}/api/test-bot`);
-            console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-        });
-
-    } catch (error) {
-        console.error("❌ Failed to start server:", error);
-        process.exit(1);
-    }
-}
-
-// Jalankan server
-startServer();
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
+    console.log(`🤖 Chatbot endpoint: http://localhost:${PORT}/ask`);
+    console.log(`📊 Bot stats: http://localhost:${PORT}/admin/bot-stats`);
+    console.log(`🧪 Test bot: http://localhost:${PORT}/test-bot`);
+});

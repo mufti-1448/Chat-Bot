@@ -12,42 +12,45 @@ const {
 const axios = require("axios");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+
+// Di server.js, tambahkan ini:
+const startServer = async () => {
+    try {
+        // Connect database manual - gunakan variabel db yang sudah di-require
+        await db.connectIfNeeded();
+        console.log("✅ Database connected successfully");
+
+        // Check if tables exist, if not then init
+        const tablesExist = await db.checkTablesExist();
+        if (!tablesExist) {
+            console.log("🔄 Initializing database tables...");
+            await db.init();
+        } else {
+            console.log("✅ Database tables already exist");
+        }
+
+        // Start server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server berjalan di port ${PORT}`);
+            console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
+            console.log(`🤖 Chatbot endpoint: http://localhost:${PORT}/api/ask`);
+        });
+
+    } catch (error) {
+        console.error("❌ Failed to start server:", error);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 // Middleware untuk production
-// GANTI CORS configuration menjadi:
 app.use(cors({
-    origin: function (origin, callback) {
-        // Izinkan semua origin untuk development dan testing
-        if (!origin || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            // Untuk production, izinkan domain tertentu
-            const allowedOrigins = [
-                "https://chatbot-sekolah-production.up.railway.app",
-                "https://your-frontend-domain.vercel.app",
-                "https://ponpes-smksa.sch.id",
-                "http://localhost:3000",
-                "http://127.0.0.1:5500",
-                "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502"
-            ];
-
-            // Izinkan juga curl/Postman requests (tidak ada origin header)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token']
+    origin: process.env.NODE_ENV === 'production' ?
+        ["https://your-frontend-domain.vercel.app", "https://ponpes-smksa.sch.id"] :
+        "http://localhost:3000",
+    credentials: true
 }));
-
-// Tambahkan untuk handle preflight requests
-app.options('*', cors());
 app.use(express.json());
 
 // Serve static files untuk production (jika frontend digabung)
@@ -307,37 +310,12 @@ app.post("/api/test-bot", async (req, res) => {
     }
 });
 
-// ===== START SERVER =====
-async function startServer() {
-    try {
-        // Connect database manual
-        await db.connectIfNeeded();
-        console.log("✅ Database connected successfully");
-
-        // Check if tables exist, if not then init
-        const tablesExist = await db.checkTablesExist();
-        if (!tablesExist) {
-            console.log("🔄 Initializing database tables...");
-            await db.init();
-        } else {
-            console.log("✅ Database tables already exist");
-        }
-
-        // Start server
-        app.listen(PORT, () => {
-            console.log(`🚀 Server berjalan di port ${PORT}`);
-            console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
-            console.log(`🤖 Chatbot endpoint: http://localhost:${PORT}/api/ask`);
-            console.log(`📊 Bot stats: http://localhost:${PORT}/api/admin/bot-stats`);
-            console.log(`🧪 Test bot: http://localhost:${PORT}/api/test-bot`);
-            console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-        });
-
-    } catch (error) {
-        console.error("❌ Failed to start server:", error);
-        process.exit(1);
-    }
-}
-
-// Jalankan server
-startServer();
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`🚀 Server berjalan di port ${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🤖 Chatbot endpoint: http://localhost:${PORT}/api/ask`);
+    console.log(`📊 Bot stats: http://localhost:${PORT}/api/admin/bot-stats`);
+    console.log(`🧪 Test bot: http://localhost:${PORT}/api/test-bot`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
