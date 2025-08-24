@@ -53,7 +53,7 @@ app.use(cors({
         } else {
             // Untuk production, izinkan domain tertentu
             const allowedOrigins = [
-                "https://chatbot-sekolah-entdkpdan-mufti404s-projects.vercel.app",
+                "https://chatbot-smksa-e5cccilfl-mufti404s-projects.vercel.app/",
                 "https://chatbot-sekolah-production.up.railway.app",
                 "https://ponpes-smksa.sch.id",
                 "http://localhost:3000",
