@@ -1,5 +1,12 @@
 // bot.js
 const db = require("./db"); // ✅ Import database yang baru
+// Tambahkan pattern matching untuk pertanyaan umum
+const patterns = {
+    'jurusan': 'Kami memiliki 3 jurusan: TKJ, RPL, dan Multimedia. Mau tahu lebih detail tentang yang mana?',
+    'ppdb': 'Info PPDB bisa dilihat di website https://ppdb.ponpes-smksa.sch.id',
+    'kontak': 'Kontak sekolah: Telp (0285) 123456, Email: info@smksa.sch.id',
+    'alamat': 'Alamat: Jl. Contoh No. 123, Kota Pekalongan'
+};
 
 class ChatBot {
     constructor() {

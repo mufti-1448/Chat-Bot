@@ -4,9 +4,6 @@ const cors = require("cors");
 const path = require('path');
 const db = require("./JS/db");
 const {
-    main: runScraper
-} = require("./JS/scraper");
-const {
     getAnswer
 } = require("./JS/bot");
 const axios = require("axios");
@@ -231,30 +228,30 @@ app.post("/api/admin/clear-cache", async (req, res) => {
     }
 });
 
-// ===== Endpoint Refresh Scraping =====
-app.post("/api/refresh", async (req, res) => {
-    const token = req.headers["x-refresh-token"];
-    if (token !== process.env.REFRESH_TOKEN) {
-        return res.status(403).json({
-            ok: false,
-            message: "Forbidden"
-        });
-    }
+// // ===== Endpoint Refresh Scraping =====
+// app.post("/api/refresh", async (req, res) => {
+//     const token = req.headers["x-refresh-token"];
+//     if (token !== process.env.REFRESH_TOKEN) {
+//         return res.status(403).json({
+//             ok: false,
+//             message: "Forbidden"
+//         });
+//     }
 
-    try {
-        await runScraper();
-        res.json({
-            ok: true,
-            message: "Scrape selesai dan data diperbarui"
-        });
-    } catch (e) {
-        console.error("Refresh error:", e);
-        res.status(500).json({
-            ok: false,
-            message: "Gagal melakukan scraping: " + e.message
-        });
-    }
-});
+//     try {
+//         await runScraper();
+//         res.json({
+//             ok: true,
+//             message: "Scrape selesai dan data diperbarui"
+//         });
+//     } catch (e) {
+//         console.error("Refresh error:", e);
+//         res.status(500).json({
+//             ok: false,
+//             message: "Gagal melakukan scraping: " + e.message
+//         });
+//     }
+// });
 
 // ===== Endpoint Test Bot (Development) =====
 app.post("/api/test-bot", async (req, res) => {
