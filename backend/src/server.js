@@ -129,49 +129,109 @@ Website: ${process.env.BASE_URL || "https://ponpes-smksa.sch.id/"}
 }
 
 // ===== Endpoint Tanya =====
+// app.post("/api/ask", async (req, res) => {
+//     const q = (req.body ?.question || req.body ?.message || "").trim().toLowerCase();
+//     if (!q) {
+//         return res.json({
+//             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
+//             quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"],
+//         });
+//     }
+
+//     // 1️⃣ Cek Pattern Matching
+//     for (const [key, response] of Object.entries(patterns)) {
+//         if (q.includes(key)) {
+//             console.log("✅ Pattern matched:", key);
+//             return res.json({
+//                 answer: response,
+//                 quickReplies: []
+//             });
+//         }
+//     }
+
+//     try {
+//         // 2️⃣ Coba pakai bot.js
+//         const botResponse = await getAnswer(q);
+//         if (botResponse.answer && botResponse.source !== "fallback") {
+//             return res.json({
+//                 answer: botResponse.answer,
+//                 quickReplies: botResponse.quickReplies,
+//             });
+//         }
+
+//         // 3️⃣ Fallback ke Gemini
+//         const ctx = await buildContext();
+//         const geminiAnswer = await askGemini(q, ctx);
+
+//         return res.json({
+//             answer: geminiAnswer,
+//             quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru"],
+//         });
+//     } catch (e) {
+//         console.error("Error in /ask endpoint:", e);
+//         return res.json({
+//             answer: "Maaf, sedang terjadi gangguan teknis. Silakan coba lagi.",
+//             quickReplies: [],
+//         });
+//     }
+// });
+
+// // ===== Endpoint Tanya =====
+// app.post("/api/ask", async (req, res) => {
+//     const q = (req.body ?.question || req.body ?.message || "").trim();
+//     if (!q) {
+//         return res.json({
+//             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
+//             quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"],
+//         });
+//     }
+
+//     try {
+//         // 🔹 Ambil data sekolah sebagai konteks
+//         const ctx = await buildContext();
+
+//         // 🔹 Minta jawaban dari Gemini
+//         const geminiAnswer = await askGemini(q, ctx);
+
+//         return res.json({
+//             answer: geminiAnswer,
+//             quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru"],
+//         });
+//     } catch (e) {
+//         console.error("Error in /ask endpoint:", e);
+//         return res.json({
+//             answer: "Maaf, sedang terjadi gangguan teknis. Silakan coba lagi.",
+//             quickReplies: [],
+//         });
+//     }
+// });
+
+// ===== Endpoint Tanya =====
 app.post("/api/ask", async (req, res) => {
-    const q = (req.body ?.question || req.body ?.message || "").trim().toLowerCase();
+    const q = (req.body ?.question || "").trim();
+
     if (!q) {
         return res.json({
             answer: "Masukkan pertanyaan yang ingin Anda tanyakan.",
-            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"],
+            quickReplies: ["Info jurusan", "Info PPDB", "Ekstrakurikuler", "Kontak sekolah"]
         });
     }
 
-    // 1️⃣ Cek Pattern Matching
-    for (const [key, response] of Object.entries(patterns)) {
-        if (q.includes(key)) {
-            console.log("✅ Pattern matched:", key);
-            return res.json({
-                answer: response,
-                quickReplies: []
-            });
-        }
-    }
-
     try {
-        // 2️⃣ Coba pakai bot.js
-        const botResponse = await getAnswer(q);
-        if (botResponse.answer && botResponse.source !== "fallback") {
-            return res.json({
-                answer: botResponse.answer,
-                quickReplies: botResponse.quickReplies,
-            });
-        }
-
-        // 3️⃣ Fallback ke Gemini
+        // ✅ LANGSUNG GUNAKAN GEMINI AI TANPA BOT LOGIC
         const ctx = await buildContext();
         const geminiAnswer = await askGemini(q, ctx);
 
         return res.json({
             answer: geminiAnswer,
-            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru"],
+            quickReplies: ["Info jurusan", "PPDB", "Kontak sekolah", "Ekstrakurikuler", "Berita terbaru", "Fasilitas sekolah"]
         });
+
     } catch (e) {
         console.error("Error in /ask endpoint:", e);
         return res.json({
-            answer: "Maaf, sedang terjadi gangguan teknis. Silakan coba lagi.",
-            quickReplies: [],
+            answer: "Maaf, sedang terjadi gangguan teknis. Silakan coba lagi dalam beberapa saat.",
+            quickReplies: []
         });
     }
 });
