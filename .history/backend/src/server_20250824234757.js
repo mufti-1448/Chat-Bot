@@ -409,18 +409,6 @@
 require('dotenv').config({
     path: '../.env'
 });
-// Ganti model name:
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro"
-});
-// atau
-// const model = genAI.getGenerativeModel({
-//     model: "gemini-pro-vision"
-// });
-// // atau  
-// const model = genAI.getGenerativeModel({
-//     model: "models/gemini-pro"
-// });
 const express = require('express');
 const {
     GoogleGenerativeAI
@@ -525,14 +513,3 @@ app.listen(PORT, () => {
     console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
     console.log(`🤖 Chatbot ready: http://localhost:${PORT}/api/ask`);
 });
-async function listModels() {
-    try {
-        const models = await genAI.listModels();
-        console.log("Available models:", models);
-    } catch (error) {
-        console.error("Error listing models:", error);
-    }
-}
-
-// Panggil function ini di startup
-listModels();

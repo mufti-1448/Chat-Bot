@@ -409,18 +409,6 @@
 require('dotenv').config({
     path: '../.env'
 });
-// Ganti model name:
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro"
-});
-// atau
-// const model = genAI.getGenerativeModel({
-//     model: "gemini-pro-vision"
-// });
-// // atau  
-// const model = genAI.getGenerativeModel({
-//     model: "models/gemini-pro"
-// });
 const express = require('express');
 const {
     GoogleGenerativeAI
@@ -441,45 +429,25 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // ✅ Function generate response
-// ✅ Function generate response dengan debugging lengkap
 async function generateResponse(userMessage) {
     try {
-        console.log("🔧 Using API Key:", GEMINI_API_KEY);
-
         const model = genAI.getGenerativeModel({
             model: "gemini-pro"
         });
 
-        const prompt = `Jawab pertanyaan tentang SMK: "${userMessage}"`;
+        const prompt = `Anda adalah asisten chatbot untuk SMK. Jawab pertanyaan dengan singkat dan jelas.
+        
+Pertanyaan: "${userMessage}"
+
+Jawablah dengan sopan dan informatif.`;
         console.log("📝 Prompt:", prompt);
 
-        console.log("🔄 Calling Gemini API...");
         const result = await model.generateContent(prompt);
-        console.log("✅ Gemini API call successful");
-
         const response = await result.response;
-        console.log("📨 Response received:", response.text().substring(0, 100) + "...");
 
         return response.text() || "Maaf, tidak bisa menjawab pertanyaan itu.";
     } catch (error) {
-        console.error("❌ FULL Gemini ERROR:");
-        console.error("Name:", error.name);
-        console.error("Message:", error.message);
-        console.error("Code:", error.code);
-        console.error("Status:", error.status);
-        console.error("Stack:", error.stack);
-
-        // Cek specific error types
-        if (error.message.includes("API key") || error.message.includes("key")) {
-            console.error("❌ INVALID API KEY!");
-        }
-        if (error.message.includes("quota")) {
-            console.error("❌ QUOTA EXCEEDED!");
-        }
-        if (error.message.includes("network")) {
-            console.error("❌ NETWORK ERROR!");
-        }
-
+        console.error("❌ Gemini error:", error.message);
         return "Maaf, sedang mengalami gangguan teknis. Silakan coba lagi nanti.";
     }
 }
@@ -525,14 +493,3 @@ app.listen(PORT, () => {
     console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
     console.log(`🤖 Chatbot ready: http://localhost:${PORT}/api/ask`);
 });
-async function listModels() {
-    try {
-        const models = await genAI.listModels();
-        console.log("Available models:", models);
-    } catch (error) {
-        console.error("Error listing models:", error);
-    }
-}
-
-// Panggil function ini di startup
-listModels();

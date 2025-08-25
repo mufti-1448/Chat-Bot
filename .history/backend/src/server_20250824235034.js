@@ -525,14 +525,3 @@ app.listen(PORT, () => {
     console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
     console.log(`🤖 Chatbot ready: http://localhost:${PORT}/api/ask`);
 });
-async function listModels() {
-    try {
-        const models = await genAI.listModels();
-        console.log("Available models:", models);
-    } catch (error) {
-        console.error("Error listing models:", error);
-    }
-}
-
-// Panggil function ini di startup
-listModels();

@@ -405,86 +405,49 @@
 // }
 
 // startServer();
-// ===== IMPORTS =====
-require('dotenv').config({
-    path: '../.env'
-});
-// Ganti model name:
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro"
-});
-// atau
-// const model = genAI.getGenerativeModel({
-//     model: "gemini-pro-vision"
-// });
-// // atau  
-// const model = genAI.getGenerativeModel({
-//     model: "models/gemini-pro"
-// });
+
+require('dotenv').config();
 const express = require('express');
 const {
     GoogleGenerativeAI
 } = require("@google/generative-ai");
-const path = require('path');
 
-// ===== CONFIG =====
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===== GEMINI SETUP =====
-const GEMINI_API_KEY = "AIzaSyBOHm6A5oG3hWkp9C5xbBjrECoFGfy0n0I"; // ✅ API Key baru
-console.log("🔑 API Key length:", GEMINI_API_KEY.length);
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-
-// ===== MIDDLEWARE =====
+// Middleware
 app.use(express.json());
 app.use(express.static('public'));
 
-// ✅ Function generate response
-// ✅ Function generate response dengan debugging lengkap
+// Inisialisasi Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// ✅ Function generate response TANPA database
 async function generateResponse(userMessage) {
     try {
-        console.log("🔧 Using API Key:", GEMINI_API_KEY);
-
         const model = genAI.getGenerativeModel({
             model: "gemini-pro"
         });
 
-        const prompt = `Jawab pertanyaan tentang SMK: "${userMessage}"`;
-        console.log("📝 Prompt:", prompt);
+        const prompt = `
+        Anda adalah asisten chatbot untuk SMK. Jawablah pertanyaan tentang sekolah dengan singkat, jelas, dan informatif.
+        
+        Pertanyaan: "${userMessage}"
+        
+        Jawablah dengan sopan dan membantu. Jika tidak tahu informasinya, jangan mengarang.
+        `;
 
-        console.log("🔄 Calling Gemini API...");
         const result = await model.generateContent(prompt);
-        console.log("✅ Gemini API call successful");
-
         const response = await result.response;
-        console.log("📨 Response received:", response.text().substring(0, 100) + "...");
 
-        return response.text() || "Maaf, tidak bisa menjawab pertanyaan itu.";
+        return response.text() || "Maaf, saya tidak bisa menjawab pertanyaan itu saat ini.";
     } catch (error) {
-        console.error("❌ FULL Gemini ERROR:");
-        console.error("Name:", error.name);
-        console.error("Message:", error.message);
-        console.error("Code:", error.code);
-        console.error("Status:", error.status);
-        console.error("Stack:", error.stack);
-
-        // Cek specific error types
-        if (error.message.includes("API key") || error.message.includes("key")) {
-            console.error("❌ INVALID API KEY!");
-        }
-        if (error.message.includes("quota")) {
-            console.error("❌ QUOTA EXCEEDED!");
-        }
-        if (error.message.includes("network")) {
-            console.error("❌ NETWORK ERROR!");
-        }
-
+        console.error("❌ Gemini API error:", error);
         return "Maaf, sedang mengalami gangguan teknis. Silakan coba lagi nanti.";
     }
 }
 
-// ===== ROUTES =====
+// ✅ Routes sederhana
 app.post("/api/ask", async (req, res) => {
     try {
         const {
@@ -504,7 +467,7 @@ app.post("/api/ask", async (req, res) => {
             response
         });
     } catch (error) {
-        console.error("❌ Error in /api/ask:", error);
+        console.error("❌ Error:", error);
         res.status(500).json({
             error: "Terjadi kesalahan internal"
         });
@@ -515,7 +478,7 @@ app.get("/api/health", (req, res) => {
     res.json({
         status: "OK",
         message: "Server berjalan normal",
-        gemini: true
+        gemini: !!process.env.GEMINI_API_KEY
     });
 });
 
@@ -523,16 +486,4 @@ app.get("/api/health", (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di port ${PORT}`);
     console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
-    console.log(`🤖 Chatbot ready: http://localhost:${PORT}/api/ask`);
 });
-async function listModels() {
-    try {
-        const models = await genAI.listModels();
-        console.log("Available models:", models);
-    } catch (error) {
-        console.error("Error listing models:", error);
-    }
-}
-
-// Panggil function ini di startup
-listModels();

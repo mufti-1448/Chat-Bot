@@ -1,7 +1,11 @@
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 const fs = require("fs");
-
+// Contoh konfigurasi database
+const dbConfig = {
+    database: process.env.DB_PATH || './school.db',
+    // konfigurasi lainnya
+};
 class Database {
     constructor() {
         this.db = null;
@@ -10,15 +14,9 @@ class Database {
         this.initializing = false;
     }
 
-    // 📌 Dapatkan path database yang benar berdasarkan environment
+    // 📌 Lokasi database ada di backend/school.db
     getDatabasePath() {
-        // Jika di production (environment variable ter-set), gunakan path dari env
-        if (process.env.NODE_ENV === 'production' && process.env.DB_PATH) {
-            return process.env.DB_PATH;
-        }
-
-        // Jika di development, gunakan path relatif di folder backend
-        return path.join(__dirname, "school.db");
+        return path.join(__dirname, "..", "school.db");
     }
 
     ensureDatabaseDir() {
